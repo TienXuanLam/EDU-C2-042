@@ -1,0 +1,57 @@
+# Runtime parameters (distinct from config/agent.yaml, the static manifest)
+max_retry: 2
+memory_enabled: false
+timeout_s: 45
+llm_temperature: 0.1
+llm_max_tokens: 1024
+
+# Institution-approved exchange profile, curriculum code list, and controlled
+# vocabulary tables (proposal EngTemplate_EDU-C2-042.md §12 Dependencies 1-3).
+#
+# IMPORTANT — illustrative representative values, NOT sourced from a real
+# institution/MEXT/publisher: at proposal time these three dependencies were
+# all "Unknown" (§12) — no concrete approved profile, curriculum code list,
+# or controlled-vocabulary table existed yet. The values below are a
+# representative starting pack chosen by the implementing engineer so the
+# pipeline is runnable end-to-end and testable in CI, matching proposal §5's
+# own "profile-configuration pack model" (Risk #3 mitigation: "canonical
+# internal model is profile-agnostic; profile-specific test fixtures are
+# required for each pack"). Every deploying institution MUST supply and
+# review its own approved profile/code-list/vocabulary pack before relying on
+# this agent's output for real cross-institution exchange decisions — see
+# README.md Known Limitations.
+#
+# Fails closed (proposal §4 Notes: "The agent fails closed if the approved
+# profile version, rule tables, or vocabulary tables are absent") — see
+# src/nodes/schema_format_validate_node.py / domain_rule_validate_node.py.
+
+exchange_profile:
+  version: "2026.1-illustrative"
+  required_fields: [resource_id, title, subject_code, grade_code, licence, language, format, url]
+  resource_id_pattern: '^[A-Za-z0-9._-]{3,64}$'
+  date_field: date_published
+  date_pattern: '^\d{4}-\d{2}-\d{2}$'
+
+curriculum_code_list:
+  version: "2026.1-illustrative"
+  subject_codes: [MATH, SCI, LANG, SOC, ART, PE, TECH, ICT]
+  grade_codes: [G1, G2, G3, G4, G5, G6, G7, G8, G9, G10, G11, G12]
+
+controlled_vocabulary:
+  version: "2026.1-illustrative"
+  licence: [CC-BY-4.0, CC-BY-SA-4.0, CC0-1.0, ALL-RIGHTS-RESERVED, SCHOOL-LICENSE]
+  language: [ja, en, "ja-en"]
+  format: [video, pdf, interactive, audio, document, image]
+  accessibility_descriptors: [captions, transcript, alt_text, audio_description, screen_reader_compatible]
+
+# JIS X 0014 / WCAG 2.x-aligned minimum descriptor requirement per resource
+# format (proposal §4 step 3 "accessibility descriptors vs profile"). Also
+# illustrative — see Known Limitations.
+accessibility_profile:
+  version: "2026.1-illustrative"
+  required_descriptors_by_format:
+    video: [captions]
+    audio: [transcript]
+    image: [alt_text]
+
+system_prompt: null  # null = built-in default instructions (src/services/remediation_llm_service.py)

@@ -1,0 +1,24 @@
+# AgentRegistry static manifest. Runtime values belong in config/config.yaml.
+id: "EDU-C2-042"
+name: "EducationLearningResourceMetadataExchangeValidatorAgent"
+namespace: "EDU"
+version: "1.1.3"
+enabled: true
+category: "Cat 2"
+generation_mode: "llm"
+industry: "EDU"
+base_type: "DocGenerationAgent"
+class: "src.graph.graph.EducationLearningResourceMetadataExchangeValidatorAgent"
+required_trust_level: "VERIFIED_EXTERNAL"
+requires:
+  # Declared so AgentRegistry surfaces a clear provisioning signal instead of
+  # a silent runtime failure when these are missing. RemediationGenerateNode
+  # resolves them per-invocation via InvocationContext.from_state(state)
+  # .secrets.require(...), which raises (caught by the node's own except
+  # block) rather than silently defaulting when a key is missing.
+  secrets:
+    - "AZURE_OPENAI_API_KEY"
+    - "AZURE_OPENAI_ENDPOINT"
+    - "AZURE_OPENAI_DEPLOYMENT"
+  extras:
+    - "openai"
